@@ -87,6 +87,7 @@ class King(Piece):
             return False
         else:
             return True
+        
     
     def castle(self, board, rook):
         rook_view = rook.vision(board)
@@ -129,14 +130,8 @@ class King(Piece):
         
         if self.color == 'W':
             valid_moves = valid_moves.intersection(board.white_vision)
-            threats = board.black_vision
-            valid_moves.difference_update(threats)
         else:
             valid_moves = valid_moves.intersection(board.black_vision)
-            threats = board.white_vision
-            valid_moves.difference_update(threats)
-            
-        print(valid_moves)
         
         if(y, x) in valid_moves and str(board.get_board()[y][x])[0] != self.color :
             board.get_board()[self.row][self.col] = "EE"

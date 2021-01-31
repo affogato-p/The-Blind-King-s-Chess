@@ -19,12 +19,14 @@ class GameBoard():
         self.black_vision = set()
         self.white_vision = set()
         self.current_player = "W"
+        self.turn_count = 0
         
+        # Initialize board with Piece objects
         for x in range(8):
             for y in range(8):
                 piece = self.board[x][y]
                 if piece == "EE": continue
-                
+
                 color = piece[0]
                 p_type = piece[1]
                 if p_type == "Q":
@@ -78,7 +80,10 @@ WHITE = (255,255,255,0)
 
 clock = pygame.time.Clock()
 
-game = GameBoard() 
+game = GameBoard()
+pygame.font.init()
+
+myfont = pygame.font.Font('DroidSansMono.ttf', 16, bold=True) 
 
 board_png = pygame.image.load('chess_board.png')
 
@@ -121,13 +126,18 @@ def blit_alpha(target, source, pos, opacity):
         temp.set_alpha(opacity)        
         target.blit(temp, pos)
 
-
 running = True
 dragging = False
 while running:
             
         gameDisplay.fill(WHITE)
         gameDisplay.blit(board_png, (0,0))
+        
+        if game.current_player == "W":
+            player_text = myfont.render('Current Player: White', False, (0,150,255))
+        else:
+            player_text = myfont.render('Current Player: Black', False, (0,150,255))
+        turn_text = myfont.render('Turn:'+str(game.turn_count), False, (0,150,255))
         
         for i in range(8):
             for j in range(8):
@@ -161,6 +171,7 @@ while running:
                         if PIECE_TO_MOVE.move(game,row,col) and not game.white_king.check(game):
                             if game.current_player == "W": game.current_player = "B"
                             else: game.current_player = "W"
+                            game.turn_count += 1
                         else:
                             game = previous_board
                             
@@ -170,6 +181,7 @@ while running:
                         if PIECE_TO_MOVE.move(game,row,col) and not game.black_king.check(game):
                             if game.current_player == "W": game.current_player = "B"
                             else: game.current_player = "W"
+                            game.turn_count += 1
                         else:
                             game = previous_board
                                 
@@ -181,6 +193,7 @@ while running:
                         else:
                             if game.current_player == "W": game.current_player = "B"
                             else: game.current_player = "W"
+                            game.turn_count += 1
                 dragging = False
                 
                     
@@ -204,20 +217,28 @@ while running:
         else: 
             game.white_vision = current_vision
             game.black_vision = other_vision
-
+        
+        # Draw Dark Tiles
         for y in range(8):
             for x in range(8):
                 if (y,x) not in current_vision:
                     gameDisplay.blit(darkness_png, (x*100,y*100))
         
+        # Draw current player
+        if game.current_player == 'W':
+            gameDisplay.blit(player_text, (5,5))
+            gameDisplay.blit(turn_text, (5, 30))
+        else:
+            gameDisplay.blit(player_text, (5,745))
+            gameDisplay.blit(turn_text, (5, 770))
+        
         pos = list(pygame.mouse.get_pos())
         pos[0] -= 35
         pos[1] -= 35
         if dragging: blit_alpha(gameDisplay, dragging, pos, 128)
+        
         pygame.display.update()
         clock.tick(60)
-        
-        
         
 
 pygame.quit()
